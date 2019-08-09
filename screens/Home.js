@@ -1,10 +1,16 @@
-import * as React from 'react';
-import { StyleSheet, Text, View, StatusBar, Image } from 'react-native';
+import React from 'react';
+import { StyleSheet, Text, View, StatusBar, Image, AsyncStorage } from 'react-native';
 import { ButtonGroup } from 'react-native-elements';
-import { Avatar, Appbar, Card, Title, Paragraph, Divider, Chip, DataTable, Button, Badge } from 'react-native-paper';
+import { Avatar, Appbar, Card, List, Title, Paragraph, Divider, Chip, DataTable, Button, Badge, FAB } from 'react-native-paper';
 import TaskFlatList from '../components/TaskFlatList';
+import StackNavigator from 'react-navigation';
+import { ScrollView } from 'react-native-gesture-handler';
 
 export default class Home extends React.Component {
+
+  constructor(props){
+    super(props);
+  }
 
   state = {
     logData: this.props.logData,
@@ -14,20 +20,23 @@ export default class Home extends React.Component {
     lastname: '',
     credit: '',
     id: '',
-    avatar: '',
+    avatar: 'https://patatask.com/avatar/default.png',
     id: '',
     selectedIndex: 0
   }
 
-  componentWillMount(){
+
+  async componentDidMount() {
+    const userData = await AsyncStorage.getItem('USERDATA', (err, result)=>{
+      this.setState({logData: JSON.parse(result)})
+    });
     const account = this.state.logData;
     const ad = account[0]; //Account Details
-    /*this.setState({
-      username: accountDetails.username,
-      id: accountDetails.id
+    this.setState({
+      username: ad.username,
+      id: ad.id
     });
-    */
-    console.log(ad);
+
     this.setState({
       username: ad.username,
       firstname: ad.firstname,
@@ -36,70 +45,122 @@ export default class Home extends React.Component {
       credit: ad.credit,
       id: ad.id,
       avatar: ad.picture,
-      
-
     });
-  }
-  
-  componentWillReceiveProps(){
-    
-  }
 
-  componentDidMount() {
-    
   }
 
   updateIndex = e = (selectedIdx) => {
     this.setState({selectedIndex: selectedIdx})
   }
 
+  getAssignedTasks = e = ()=> {
+    const apiuri = "http://patatask.com:3000/api/Tasks?filter=%7B%22where%22%3A%7B%22assignee%22%3A%22"+ this.state.id + "%22%2C%22completed%22%3A%22"+ 0 +"%22%7D%7D";
+    this.props.navigation.navigate('Tasks',{taskuri: apiuri, screenTitle: "Assigned Tasks"});
+  }
+
+  _onLogout(propsHandler){
+
+  }
+
   render() {
+    const {navigate} = this.props.navigation;
     return(
-        <View style={styles.container}>      
+        <View style={styles.container}>
           <StatusBar hidden={true} />
-          
           <Appbar style={styles.bottom}>
               <Appbar.Action icon="menu" onPress={() => console.log('Pressed archive')}/>
-              <Appbar.Content title="PataTask: Task List" TitleStyle={{textAlign: 'center'}} />
-              <Appbar.Action style={styles.exitBtn} icon="exit-to-app" onPress={ this.props.onLogoutPress } />
+              <Appbar.Content title="Dashboard" TitleStyle={{textAlign: 'center'}} />
+              <Appbar.Action style={styles.exitBtn} icon="exit-to-app" onPress={ this.props.onLogoutHandler } />
           </Appbar>   
 
           <Card style={styles.cardStyleHome}>
-            {/* <Card.Title titleStyle={{ textAlign: "auto", fontSize: 28 }} title={ "Hello " + this.state.firstname } left={(props) => <Avatar.Image size={100} source={{uri: this.state.avatar}} />} leftStyle={{paddingRight:100}} right={(props) => <Image style={{width:75, height:75, marginRight:20, marginTop:10}} source={require('../assets/coins-tn.jpg')} />}  /> */}
             <Card.Title titleStyle={{ textAlign: "auto", fontSize: 18 }} title={ "Hello " + this.state.firstname } left={(props) => <Avatar.Image size={100} source={{uri: this.state.avatar}} />} leftStyle={{paddingRight:100}}/>
             <Card.Content style={{alignSelf:"flex-end", position:"absolute", fontSize:22,  marginRight:10}}>
               <Image style={{width:75, height:75, alignSelf:"center"}} source={require('../assets/coins-tn.jpg')} /> 
               <Text style={{alignSelf:"center", fontStyle:"italic", fontWeight:"200"}}>1000000000.265624</Text>
             </Card.Content>
           </Card>
-
-          <Card style={styles.cardStyleTasksBtn}>
-            <Button mode='text' style={{ fontSize: 20, paddingBottom:5 }}>TASKS TYPE</Button>
-            <Card.Content style={styles.cardContentBox}>
-                <Button color='#d04925' icon='assignment' mode='outlined' >Assigned</Button>
-                <Button color='#d04925' icon='assignment-ind' mode='outlined' >Pending</Button>
-                <Button color='#d04925' icon='assignment-turned-in' mode='outlined' >Completed</Button>
-            </Card.Content>
-          </Card>
-          <Card style={styles.cardStyleTasksList}>
-          <Button mode='text' style={{ fontSize: 16, paddingBottom:5 }}>TASKS ASSIGNED TO YOU</Button>
-            <Card.Content>
-                <TaskFlatList/>
-            </Card.Content>
-          </Card>
-
           
+          <ScrollView>   
+          <Card style={styles.cardStyleTasksBtn}>
+            <Card.Content style={styles.cardContentBox}>
+
+                <List.Section>
+                  <List.Subheader>YOUR ASSIGNMENTS</List.Subheader>
+                  <List.Item
+                      title="Assigned"
+                      description = "Tasks assigned to you"
+                      left={() => <List.Icon icon="assignment" />}
+                      onPress={ this.getAssignedTasks }
+                  />
+                  <List.Item
+                    title="Pending"
+                    description ="Assignments you marked as done and pending approval"
+                    left={() => <List.Icon color="#000" icon="assignment-ind" />}
+                    onPress={() => console.log('Pressed Pending')}
+                  />
+                  <List.Item
+                    title="Completed"
+                    description="Your assignments accepted by task owner"
+                    left={() => <List.Icon color="#000" icon="assignment-turned-in" />}
+                    onPress={() => console.log('Pressed Completed')}
+                  />
+                </List.Section>
+                
+                <List.Section>
+                  <List.Subheader>OTHER TASKS</List.Subheader>
+                  <List.Item
+                      title="Assign Tasks"
+                      description = "Assign your tasks"
+                      left={() => <List.Icon icon="work" />}
+                      onPress={() => console.log('Pressed Assigned')}
+                  />
+                  <List.Item
+                    title="Task Approval"
+                    description ="Assignments you marked as done and pending approval"
+                    left={() => <List.Icon color="#000" icon="check-circle" />}
+                    onPress={() => console.log('Pressed Pending')}
+                  />
+                  <List.Item
+                    title="Public Tasks"
+                    description="Select public tasks that you want to do"
+                    left={() => <List.Icon color="#000" icon="group" />}
+                    onPress={() => console.log('Pressed Completed')}
+                  />
+                </List.Section>
+
+            </Card.Content>
+          </Card>
+          </ScrollView>
+
+          <FAB
+            style={styles.fab}
+            icon="add"
+            onPress={() => this.props.navigation.push("Create") }
+          />
         </View>
+        
     );
   }
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     backgroundColor: '#4c5fb1',
   },
   textInfoStyle:{
     fontSize: 18
+  },
+  listMenuStyle: {
+    flex: 1,
+  },
+  fab:{
+    alignSelf: 'flex-end',
+    position: 'absolute',
+    margin: 16,
+    right: 0,
+    bottom: 0,
   },
   taskButtonStyle:{
     alignContent: "space-around",
@@ -124,8 +185,8 @@ const styles = StyleSheet.create({
     width: "98%",
   },
   cardStyleTasksBtn: {
+    flex: 1,
     marginTop: 10,
-    height: 100,
     alignSelf: "center",
     width: "98%",
   },
@@ -137,9 +198,7 @@ const styles = StyleSheet.create({
     paddingBottom: 80,
   },
   cardContentBox: {
-    flexDirection: "row",
-    justifyContent: "space-evenly",
-    paddingTop: 0,
+    flex:1
   }
 
 });

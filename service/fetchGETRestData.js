@@ -1,12 +1,13 @@
 export default {
-    async fetchGETRestData(restURI) {
+    async fetchData(restURI) {
         try {
-                let response = await fetch(restURI);
+                const URI = restURI;
+                let response = await fetch(URI);
                 let responseJsonData = await response.json();
                 return responseJsonData;
             }
         catch(e) {
-            console.log(e)
+            console.log('ERR : ' + e)
         }
     }
 }
