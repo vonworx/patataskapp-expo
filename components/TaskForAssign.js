@@ -5,7 +5,7 @@ var ReactNative = require('react-native');
 var {View, ScrollView, StyleSheet, Text, TouchableOpacity, FlatList} = ReactNative;
 import { withNavigation } from 'react-navigation';
 import { Card, Appbar } from 'react-native-paper';
-import { Image } from 'react-native-elements';
+
 import ajax from '../service/fetchGETRestData';
 
 class TaskList extends React.PureComponent {
@@ -16,66 +16,23 @@ class TaskList extends React.PureComponent {
 
   state = {
     tasks: [],
-    screenTitle: "",
-    taskid: null,
-    taskType:""
+    screenTitle: ""
   }
 
   async componentWillMount() {
-
+    
+    //this._fetchTask();
     const { navigation } = this.props;
 
     //UNCOMMENT BELOW FOR TESTING
     //const taskTypeURL = 'http://52.34.74.81/tasks.json';
-
     const taskTypeURL = this.props.navigation.getParam('taskuri', '');
-    const scrTitle    = this.props.navigation.getParam('screenTitle','Patatask Task List');
-    const taskType    = this.props.navigation.getParam('taskType','assigned');
+    const scrTitle = this.props.navigation.getParam('screenTitle','Patatask Task List');
     
-    const tasks = await ajax.fetchData(taskTypeURL);    
-    this.setState({tasks, screenTitle: scrTitle, taskType});
+    console.log("URI TEST:" + taskTypeURL);
+    const tasks = await ajax.fetchData(taskTypeURL);
+    this.setState({tasks, screenTitle: scrTitle});
 
-  }
-
-
-  getYourTasks = e = ()=> { 
-    const apiuri = "http://patatask.com:3000/api/Tasks?filter[where][id]="+ this.state.taskid;
-    this.props.navigation.navigate('Tasks',{taskuri: apiuri, screenTitle: "Assign Your Tasks", taskType:"own"});
-  }
-
-
-  getItemId(itemid){
-
-    this.setState({
-      taskid: itemid
-    });
-
-    console.log(this.state.taskid);
-    
-    let scrTitle = "";
-    
-    switch(this.state.taskType){
-      case "assigned":
-        scrTitle = "Edit Your Assigned Task";
-        break;
-      case "pending": {
-        scrTitle = "View Pending Task";
-        break;
-      }
-      case "approved": {
-        scrTitle = "View Approved Task";
-        break;
-      } 
-      case "own": {
-        scrTitle = "Assign Your Task";
-        break;
-      }
-      
-
-    }
-
-    const apiuri = "http://patatask.com:3000/api/Tasks?filter[where][id]="+ itemid;
-    this.props.navigation.navigate('Assign',{taskuri: apiuri, screenTitle: scrTitle, taskType:"own"});
   }
 
   render() {
@@ -97,10 +54,9 @@ class TaskList extends React.PureComponent {
             showsVerticalScrollIndicator={true}
             renderItem={({item}) =>
             <View style={styles.view}>
-              <Card style={styles.card} onPress={() => this.getItemId(item.id) }>
-                <Card.Title title={item.taskname} titleStyle={styles.taskname} />                
+              <Card style={styles.card}>
+                <Card.Title title={item.taskname} titleStyle={styles.taskname} />
                 <Card.Content>
-                  <Image source={{uri: item.file}} style={{ width: 50, height: 50 }} />
                   <Text><Text style={styles.label}>Description </Text><Text style={styles.description}>{item.description}</Text></Text>
                   <Text><Text style={styles.label}>Reward Amount </Text><Text style={styles.amount}>{item.amount}</Text></Text>
                 </Card.Content>
@@ -139,7 +95,6 @@ const styles = StyleSheet.create({
   },
   card:{
     margin: 5,
-    elevation: 2
   },
   label:{
     fontSize: 12,

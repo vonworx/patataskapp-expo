@@ -43,6 +43,7 @@ export default class App extends React.Component {
 
       try {
         let response = await fetch(url);
+        
         if (response.status == 200){
             this.setState({ message: "Account not found" });
             proceed = true;
@@ -91,7 +92,6 @@ export default class App extends React.Component {
         <View style={styles.container}>
         <StatusBar hidden={true} />
             <Image source={ require('./assets/logo-trans.png')}  />
-            <Text style={styles.loginText}> Log In</Text>
             <TextInput label="Enter Username" style={styles.textInputStyle} onChangeText={(username) => this.setState({username})} placeholder="Username" value={this.state.username} />
             <TextInput label="Enter Password" style={styles.textInputStyle} onChangeText={(password) => this.setState({password})} placeholder ="Password" value={this.state.password} secureTextEntry={ true }/>
             <Button contentStyle={{fontSize: 28}} mode="contained" dark={true} style = {styles.logButtonStyle} onPress = { this._userLogin } uppercase={false} >LOGIN</Button>
@@ -102,7 +102,7 @@ export default class App extends React.Component {
     else {
       return (
         <View style={styles.homeStyle}>
-          <Dashboard screenProps = {{onLogout: this.logOut, logData: this.state.logData}} logData={this.state.logData} />
+          <Dashboard screenProps = {{onLogout: this.logOut, logData: this.state.logData, navigation: this.props.navigation}} logData={this.state.logData} />
         </View>
       );
     }
@@ -112,14 +112,14 @@ export default class App extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    /*backgroundColor: '#4c5fb1',*/
+    backgroundColor: '#f7f7cf',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 10,
   },
   logButtonStyle : {
-    backgroundColor: '#2c2955',
-    width: 400,
+    backgroundColor: '#990000',
+    width: "80%",
     height: 50,
   },
   errText: {
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     top: 120,
   },
   textInputStyle: {
-    width: 400,
+    width: "80%",
     height: 56,
     borderColor: '#2EA1FF',
 		borderWidth: 2,

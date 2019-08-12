@@ -4,6 +4,7 @@ import { createStackNavigator, createAppContainer } from "react-navigation";
 import Home from './Home';
 
 import TaskList from '../components/TaskList';
+import ModifyTask from '../components/ModifyTask';
 import CreateTask from './CreateTask';
 
 
@@ -43,7 +44,8 @@ class Dashboard extends React.Component {
     {
       Home:  {screen: Dashboard},
       Tasks: {screen: TaskList},
-      Create: {screen: CreateTask}
+      Create: {screen: CreateTask},
+      Assign: {screen: ModifyTask}
     },
     {
       defaultNavigationOptions:{ header:null }

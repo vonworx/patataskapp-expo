@@ -1,10 +1,9 @@
 import React from 'react';
-import { StyleSheet, Text, View, StatusBar, Image, AsyncStorage } from 'react-native';
+import { StyleSheet, Text, View, StatusBar, Image, AsyncStorage, ScrollView } from 'react-native';
 import { ButtonGroup } from 'react-native-elements';
 import { Avatar, Appbar, Card, List, Title, Paragraph, Divider, Chip, DataTable, Button, Badge, FAB } from 'react-native-paper';
 import TaskFlatList from '../components/TaskFlatList';
 import StackNavigator from 'react-navigation';
-import { ScrollView } from 'react-native-gesture-handler';
 
 export default class Home extends React.Component {
 
@@ -27,6 +26,7 @@ export default class Home extends React.Component {
 
 
   async componentDidMount() {
+    
     const userData = await AsyncStorage.getItem('USERDATA', (err, result)=>{
       this.setState({logData: JSON.parse(result)})
     });
@@ -53,9 +53,31 @@ export default class Home extends React.Component {
     this.setState({selectedIndex: selectedIdx})
   }
 
+  //"http://patatask.com:3000/api/Tasks?filter=%7B%22where%22%3A%7B%22assignee%22%3A%2"+ assignee + "2%22%2C%22completed%22%3A%22"+ completed +"%22%2C%22approved%22%3A%22"+ approved + "%22%7D%7D"
+
   getAssignedTasks = e = ()=> {
     const apiuri = "http://patatask.com:3000/api/Tasks?filter=%7B%22where%22%3A%7B%22assignee%22%3A%22"+ this.state.id + "%22%2C%22completed%22%3A%22"+ 0 +"%22%7D%7D";
-    this.props.navigation.navigate('Tasks',{taskuri: apiuri, screenTitle: "Assigned Tasks"});
+    this.props.navigation.navigate('Tasks',{taskuri: apiuri, screenTitle: "Assigned Tasks", taskType:"assigned"});
+  }
+
+  getPendingTasks = e = ()=> {
+    const apiuri = "http://patatask.com:3000/api/Tasks?filter=%7B%22where%22%3A%7B%22assignee%22%3A%2"+ this.state.id + "2%22%2C%22completed%22%3A%22"+ 1 +"%22%2C%22approved%22%3A%22"+ 0 + "%22%7D%7D";
+    this.props.navigation.navigate('Tasks',{taskuri: apiuri, screenTitle: "Tasks Pending Approval", taskType:"pending"});
+  }
+
+  getApprovedTasks = e = ()=> { 
+    const apiuri = "http://patatask.com:3000/api/Tasks?filter=%7B%22where%22%3A%7B%22assignee%22%3A%2"+ this.state.id + "2%22%2C%22completed%22%3A%22"+ 1 +"%22%2C%22approved%22%3A%22"+ 1 + "%22%7D%7D";
+    this.props.navigation.navigate('Tasks',{taskuri: apiuri, screenTitle: "Approved Tasks", taskType:"approved"});
+  }
+
+  getYourTasks = e = ()=> { 
+    //const apiuri = "http://patatask.com:3000/api/Tasks?filter=%7B%22where%22%3A%7B%22assignee%22%3A%220%22%2C%20%22owner%22%3A%222%22%7D%7D"
+    const apiuri = "http://patatask.com:3000/api/Tasks?filter[where][assignee]="+ 0 + "&filter=[owner]="+ this.state.id;
+    this.props.navigation.navigate('Tasks',{taskuri: apiuri, screenTitle: "Assign Your Tasks", taskType:"own"});
+  }
+
+  createTask = e = ()=> {
+    this.props.navigation.navigate('Create',{screenTitle: "Create New Task"}); 
   }
 
   _onLogout(propsHandler){
@@ -65,7 +87,7 @@ export default class Home extends React.Component {
   render() {
     const {navigate} = this.props.navigation;
     return(
-        <View style={styles.container}>
+        <View style={styles.container}> 
           <StatusBar hidden={true} />
           <Appbar style={styles.bottom}>
               <Appbar.Action icon="menu" onPress={() => console.log('Pressed archive')}/>
@@ -77,14 +99,13 @@ export default class Home extends React.Component {
             <Card.Title titleStyle={{ textAlign: "auto", fontSize: 18 }} title={ "Hello " + this.state.firstname } left={(props) => <Avatar.Image size={100} source={{uri: this.state.avatar}} />} leftStyle={{paddingRight:100}}/>
             <Card.Content style={{alignSelf:"flex-end", position:"absolute", fontSize:22,  marginRight:10}}>
               <Image style={{width:75, height:75, alignSelf:"center"}} source={require('../assets/coins-tn.jpg')} /> 
-              <Text style={{alignSelf:"center", fontStyle:"italic", fontWeight:"200"}}>1000000000.265624</Text>
+              <Text style={{alignSelf:"center", fontStyle:"italic", fontWeight:"200"}}>Cr. {this.state.credit}</Text>
             </Card.Content>
           </Card>
           
           <ScrollView>   
           <Card style={styles.cardStyleTasksBtn}>
             <Card.Content style={styles.cardContentBox}>
-
                 <List.Section>
                   <List.Subheader>YOUR ASSIGNMENTS</List.Subheader>
                   <List.Item
@@ -97,23 +118,22 @@ export default class Home extends React.Component {
                     title="Pending"
                     description ="Assignments you marked as done and pending approval"
                     left={() => <List.Icon color="#000" icon="assignment-ind" />}
-                    onPress={() => console.log('Pressed Pending')}
+                    onPress={ this.getPendingTasks }
                   />
                   <List.Item
                     title="Completed"
                     description="Your assignments accepted by task owner"
                     left={() => <List.Icon color="#000" icon="assignment-turned-in" />}
-                    onPress={() => console.log('Pressed Completed')}
+                    onPress={this.getApprovedTasks }
                   />
                 </List.Section>
-                
                 <List.Section>
                   <List.Subheader>OTHER TASKS</List.Subheader>
                   <List.Item
                       title="Assign Tasks"
                       description = "Assign your tasks"
                       left={() => <List.Icon icon="work" />}
-                      onPress={() => console.log('Pressed Assigned')}
+                      onPress={this.getYourTasks}
                   />
                   <List.Item
                     title="Task Approval"
@@ -136,7 +156,7 @@ export default class Home extends React.Component {
           <FAB
             style={styles.fab}
             icon="add"
-            onPress={() => this.props.navigation.push("Create") }
+            onPress={this.createTask }
           />
         </View>
         
@@ -147,7 +167,7 @@ export default class Home extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#4c5fb1',
+    backgroundColor: '#f7f7cf',
   },
   textInfoStyle:{
     fontSize: 18
@@ -161,6 +181,7 @@ const styles = StyleSheet.create({
     margin: 16,
     right: 0,
     bottom: 0,
+    backgroundColor: '#990000'
   },
   taskButtonStyle:{
     alignContent: "space-around",
@@ -172,7 +193,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     top: 0,
-    backgroundColor: '#2c2955'
+    backgroundColor: '#990000'
   },
   exitBtn: {
     alignSelf: 'flex-end'
@@ -182,19 +203,21 @@ const styles = StyleSheet.create({
     height: 100,
     alignSelf: "center",
     flexDirection: 'row',
-    width: "98%",
+    width: "90%",
+    backgroundColor: '#fff'
   },
   cardStyleTasksBtn: {
     flex: 1,
     marginTop: 10,
     alignSelf: "center",
-    width: "98%",
+    width: "90%",
+    backgroundColor:'#fff'
   },
   cardStyleTasksList: { 
     marginTop: 10,
     height: 400,
     alignSelf: "center",
-    width: "98%",
+    width: "90%",
     paddingBottom: 80,
   },
   cardContentBox: {
