@@ -8,7 +8,7 @@ import { Image, Overlay, ListItem } from 'react-native-elements';
 import {withNavigation} from 'react-navigation';
 import ajax from '../service/fetchGETRestData';
 
-class ModifyTask extends React.Component{
+class AssignTask extends React.Component{
 
     constructor(props){
 
@@ -24,10 +24,9 @@ class ModifyTask extends React.Component{
             deadline:"",
             amount:"",
             owner:"",
-            ownerName:"",
             public:"",
             assignee:"",
-            assigneeName:" Not assigned to anyone yet. Tap to assign ",
+            assigneeName:"Not assigned to anyone yet. Tap to assign",
             completed:"",
             file:"https://img.patatask.com/assets/checklist-default.png",
             created:"",
@@ -76,12 +75,9 @@ class ModifyTask extends React.Component{
         try {
             const friendURI = 'http://patatask.com:3000/api/accounts?filter[where][id]='+ id;
             const myFriend = await ajax.fetchData(friendURI);
-            const fData = await myFriend[0];
+            const fData = myFriend[0];
             console.log("myfriend " + fData.firstname + " " + fData.lastname);
             const fullname = fData.firstname + " " + fData.lastname;
-
-            this.setState({ ownerName: fullname});
-
             return fullname.toString() ;
         }
         catch(e){
@@ -89,43 +85,25 @@ class ModifyTask extends React.Component{
         }
     }
 
-    async modifyTask(){
+    async assignTaskTo(){
 
-        const forcredit = this.props.screenProps.logData[0].credit + this.state.amount;
+        console.log(this.state.assigneeName);
 
         var patchURI = "http://patatask.com:3000/api/Tasks/"+this.state.id;
-        
-        const patchResponse = await fetch(patchURI, {
+        let patchResponse = await fetch(patchURI, {
                 method: 'PATCH',
                 headers: { 
                         'Accept': 'application/json',
                         'Content-Type': 'application/json' 
                         },
                 body: JSON.stringify({
-                    completed: 1,
+                    assignee: this.state.assignee,
                 }),
         })
 
-        
-        let patch = await patchResponse.json();
-
-        Alert.alert("Task Completed","You have successfully completed task. Please wait for owner approval",[
+        Alert.alert("Task Assignment Completed","You have successfully assigned task to "+ this.state.assigneeName,[
             {text:'Ok', onPress: ()=> this.props.navigation.goBack() },
         ])
-        
-        /*
-        var creditURI = "http://patatask.com:3000/api/accounts/"+this.state.id;
-        const creditUpdateResponse = await fetch(creditURI, {
-                method: 'PATCH',
-                headers: { 
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json' 
-                        },
-                body: JSON.stringify({
-                    credit: forcredit
-                }),
-        })
-        */
 
     }
 
@@ -183,9 +161,33 @@ class ModifyTask extends React.Component{
             id: stateVars.id
         })
 
-        this.getName(stateVars.owner);
+        this.selecAllFriends(stateVars.owner);
 
 
+    }
+
+    confirm(){
+        console.log("Assign pressed");
+
+        if (this.state.assignee =='0'){
+            Alert.alert("Invalid Assignment","Please select an assignee first.")
+        }
+        else {
+            Alert.alert(
+                'Assign Task',
+                'Assign task to '+ this.state.assigneeName + "?",
+                [
+                  {
+                    text: 'Cancel',
+                    onPress: () => console.log('Cancel Pressed'),
+                    style: 'cancel',
+                  },
+                  {text: 'Ok', onPress: () => this.assignTaskTo() },
+                ],
+                {cancelable: false},
+              )
+        }
+        
     }
         
 
@@ -198,6 +200,25 @@ class ModifyTask extends React.Component{
         
         return(
             <View style={styles.container}>
+
+                <Overlay isVisible={this.state.isVisible} height='90%'>
+                    
+                    <FlatList 
+                        style={styles.flatList}
+                        data={this.state.friends}
+                        showsVerticalScrollIndicator={true}
+                        renderItem={    ({item}) =>                                
+                            <Card style={{ borderColor:'#333', border:2}} onPress={() => this.setState({ assignee: item.friendid, assigneeName: item.friendname, isVisible:false }) }>
+                                <Card.Content>
+                                    <Text>  { item.friendname } </Text>
+                                </Card.Content>                                
+                            </Card>
+                        }
+
+                        keyExtractor={item => item.friendid.toString()}
+                    />               
+                </Overlay>
+
                 <Appbar style={styles.bottom}>
                     <Appbar.Action icon="arrow-back" onPress={() => goBack()}/>
                     <Appbar.Content title={this.state.screenTitle} TitleStyle={{textAlign: 'center'}} />
@@ -208,14 +229,17 @@ class ModifyTask extends React.Component{
                     <Card.Cover source={{uri: this.state.file }} />
                     <Card.Title title={this.state.taskname} titleStyle={styles.taskname} />
                     <Card.Content style={{marginBottom: 10}}>
-                        <Text><Text style={styles.label}>Task Owner </Text><Text style={styles.amount}>  {this.state.ownerName}</Text></Text>
                         <Text><Text style={styles.label}>Reward Amount </Text><Text style={styles.amount}>  {this.state.amount}</Text></Text>
                         <Text><Text style={styles.label}>Description </Text><Text style={styles.description}> {this.state.description}</Text></Text>
                         <Text><Text style={styles.label}>Due on </Text><Text style={styles.deadline}> { this.formatDate(this.state.deadline) }</Text></Text>       
                     </Card.Content>
+                    <Card.Title title="Assign task " titleStyle={styles.taskname} />
+                    <Card.Content style={{flexDirection:"row", border:2, elevation:2, borderColor:'#222', height:50, alignItems:'center'}}>
+                        <Text onPress={() => this.setState({ isVisible: true }) } > <Text style={styles.taskname}>To </Text> <Text style={styles.taskname}>{this.state.assigneeName}</Text> </Text>
+                    </Card.Content>
                     <Card.Actions style={{justifyContent:'space-evenly'}}>
                         <Button onPress={ () => goBack() } >Cancel</Button>
-                        <Button onPress={ this.modifyTask.bind(this) } >Complete</Button>
+                        <Button onPress={ this.confirm.bind(this) } >Assign</Button>
                     </Card.Actions>
                 </Card>
             </View>
@@ -273,4 +297,4 @@ const styles = StyleSheet.create({
 
 });
 
-export default withNavigation(ModifyTask);
+export default withNavigation(AssignTask);

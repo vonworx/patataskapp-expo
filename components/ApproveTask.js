@@ -8,7 +8,7 @@ import { Image, Overlay, ListItem } from 'react-native-elements';
 import {withNavigation} from 'react-navigation';
 import ajax from '../service/fetchGETRestData';
 
-class ModifyTask extends React.Component{
+class ApproveTask extends React.Component{
 
     constructor(props){
 
@@ -24,54 +24,21 @@ class ModifyTask extends React.Component{
             deadline:"",
             amount:"",
             owner:"",
-            ownerName:"",
             public:"",
             assignee:"",
-            assigneeName:" Not assigned to anyone yet. Tap to assign ",
+            assigneeName:"",
+            assigneeCredit:0,  
             completed:"",
             file:"https://img.patatask.com/assets/checklist-default.png",
             created:"",
             modified: null,
             approved:"",
             id:"",
-            isVisible: false           
+            isVisible: false,
+                   
         }
     }
     
-    
-    
-
-    async selecAllFriends(id){
-
-        try{
-            //http://patatask.com:3000/api/UserFriends?filter=%7B%22where%22%3A%7B%22userid%22%3A%222%22%7D%7D
-            const friendURI = 'http://patatask.com:3000/api/UserFriends?filter=%7B%22where%22%3A%7B%22userid%22%3A%22'+ id +'%22%7D%7D';
-            //const friends = await ajax.fetchData(friendURI);            
-
-            let friendids = await ajax.fetchData(friendURI);
-
-           await Promise.all(
-                friendids.map( 
-                    async (item) => { 
-                        const myname = await this.getName( item.friendid );
-                        item["friendname"] =  await myname;
-                    }
-                )
-           )
-
-            const friends = await friendids;
-
-            this.setState({ friends });
-            
-            console.log("selectAllFriends : " + JSON.stringify(this.state.friends) );
-
-
-        }
-        catch(e){
-            console.log(e);
-        }
-    }
-
     async getName(id){
         try {
             const friendURI = 'http://patatask.com:3000/api/accounts?filter[where][id]='+ id;
@@ -79,10 +46,21 @@ class ModifyTask extends React.Component{
             const fData = await myFriend[0];
             console.log("myfriend " + fData.firstname + " " + fData.lastname);
             const fullname = fData.firstname + " " + fData.lastname;
-
-            this.setState({ ownerName: fullname});
-
+            this.setState({ assigneeName: fullname});
             return fullname.toString() ;
+        }
+        catch(e){
+            console.log(e);
+        }
+    }
+
+    async getAssigneeCredit(id){
+        try {
+            const friendURI = 'http://patatask.com:3000/api/accounts?filter[where][id]='+ id;
+            const myFriend = await ajax.fetchData(friendURI);
+            const fData = await myFriend[0];
+            const credit = fData.credit;
+            this.setState({ assigneeCredit: credit});;
         }
         catch(e){
             console.log(e);
@@ -91,7 +69,7 @@ class ModifyTask extends React.Component{
 
     async modifyTask(){
 
-        const forcredit = this.props.screenProps.logData[0].credit + this.state.amount;
+        const forcredit = this.state.assigneeCredit + this.state.amount;
 
         var patchURI = "http://patatask.com:3000/api/Tasks/"+this.state.id;
         
@@ -102,19 +80,15 @@ class ModifyTask extends React.Component{
                         'Content-Type': 'application/json' 
                         },
                 body: JSON.stringify({
-                    completed: 1,
+                    approved: 1,
                 }),
         })
 
-        
-        let patch = await patchResponse.json();
+        let patch = await patchResponse.json().then( (response) => console.log("RESP :" + JSON.stringify(response)));
 
-        Alert.alert("Task Completed","You have successfully completed task. Please wait for owner approval",[
-            {text:'Ok', onPress: ()=> this.props.navigation.goBack() },
-        ])
-        
-        /*
-        var creditURI = "http://patatask.com:3000/api/accounts/"+this.state.id;
+        console.log("COMPLETE : " + this.state.assigneeCredit + " + " + this.state.amount +" = " + forcredit );
+
+        var creditURI = "http://patatask.com:3000/api/accounts/"+this.state.assignee;
         const creditUpdateResponse = await fetch(creditURI, {
                 method: 'PATCH',
                 headers: { 
@@ -125,7 +99,10 @@ class ModifyTask extends React.Component{
                     credit: forcredit
                 }),
         })
-        */
+
+        Alert.alert("Task Approved","You have approved task. Amount credited to assignee. Thank you!",[
+            {text:'Ok', onPress: ()=> this.props.navigation.goBack() },
+        ])
 
     }
 
@@ -183,13 +160,11 @@ class ModifyTask extends React.Component{
             id: stateVars.id
         })
 
-        this.getName(stateVars.owner);
+        this.getName(stateVars.assignee);
+        this.getAssigneeCredit(stateVars.assignee);
 
 
     }
-        
-
-
 
     render(){
 
@@ -208,14 +183,14 @@ class ModifyTask extends React.Component{
                     <Card.Cover source={{uri: this.state.file }} />
                     <Card.Title title={this.state.taskname} titleStyle={styles.taskname} />
                     <Card.Content style={{marginBottom: 10}}>
-                        <Text><Text style={styles.label}>Task Owner </Text><Text style={styles.amount}>  {this.state.ownerName}</Text></Text>
+                        <Text><Text style={styles.label}>Assigned to </Text><Text style={styles.amount}>  { this.state.assigneeName }</Text></Text>
                         <Text><Text style={styles.label}>Reward Amount </Text><Text style={styles.amount}>  {this.state.amount}</Text></Text>
                         <Text><Text style={styles.label}>Description </Text><Text style={styles.description}> {this.state.description}</Text></Text>
                         <Text><Text style={styles.label}>Due on </Text><Text style={styles.deadline}> { this.formatDate(this.state.deadline) }</Text></Text>       
                     </Card.Content>
                     <Card.Actions style={{justifyContent:'space-evenly'}}>
                         <Button onPress={ () => goBack() } >Cancel</Button>
-                        <Button onPress={ this.modifyTask.bind(this) } >Complete</Button>
+                        <Button onPress={ this.modifyTask.bind(this) } >Approve</Button>
                     </Card.Actions>
                 </Card>
             </View>
@@ -273,4 +248,4 @@ const styles = StyleSheet.create({
 
 });
 
-export default withNavigation(ModifyTask);
+export default withNavigation(ApproveTask);

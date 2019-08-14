@@ -10,13 +10,15 @@ import Dashboard from './screens/Dashboard'
 ////<Text>Choi open up App.js to start working on your app!</Text>
 export default class App extends React.Component {
 
-    constructor(props){
+    constructor(props)
+    {
       super(props);
+
       this.logOut = this.logOut.bind(this);
 
       this.state = {
-        username: 'choister',
-        password: 'choipogi123',
+        username: 'lancejrts',
+        password: '2',
         isLoggedIn: false,
         message: '',
         logData: [],
@@ -25,28 +27,42 @@ export default class App extends React.Component {
 
     }
 
+    async componentDidMount(){
+      const logStatus = await this.getData();
+      console.log(JSON.stringify(logStatus));
+    }
+
+    async getData(){
+        
+      return await AsyncStorage.getItem('isLoggedIn');
+        
+    }
+
     logOut(){
+      AsyncStorage.setItem('isLoggedin', JSON.stringify({isLoggedIn : false}));
       
       this.setState({
-        isLoggedIn:false
+        logData:[],
+        isLoggedIn:false,
+        username: '',
+        password: '',
       });
-
     }
 
     _userLogin = async () => {
+
       var username = this.state.username;
-      var proceed = false;
-      //var url = "http://13.228.19.190:3000/api/accounts?filter=%7B%22where%22%3A%7B%22username%22%3A%22"+ username + "%22%20%7D%7D";
       var url = "http://13.228.19.190:3000/api/accounts?filter[where][username]="+ username;
 
       try {
         let response = await fetch(url);
         
         if (response.status == 200){
+            
             this.setState({ message: "Account not found" });
             proceed = true;
             const userInfo = await response.json();
-            const details = userInfo[0];
+            const details = await userInfo[0];
 
             //console.log(details);
 
@@ -60,7 +76,8 @@ export default class App extends React.Component {
                   message: ''
                  });
 
-                AsyncStorage.setItem('USERDATA', JSON.stringify(userInfo));
+                  AsyncStorage.setItem('USERDATA', JSON.stringify(userInfo));
+                  AsyncStorage.setItem('isLoggedin', JSON.stringify({isLoggedIn : false}));           
 
               } else {
                 this.setState({message: "Invalid password"});
@@ -68,14 +85,7 @@ export default class App extends React.Component {
             } else {
               this.setState({ message: "No account not found" });
             }
-        } else {
-          //this.setState({ isLoggingIn: false });
-        }
-
-        if (proceed) {
-          //this.props.onLoginPress();
-        }
-
+        } 
       }
       catch(e) {
           console.log(e)
@@ -123,7 +133,7 @@ const styles = StyleSheet.create({
   errText: {
     padding: 5,
     fontSize: 22,
-    color: '#fff',
+    color: '#990000',
     fontWeight: '300',
     fontStyle:'italic'
   },

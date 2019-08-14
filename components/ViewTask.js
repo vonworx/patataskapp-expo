@@ -2,13 +2,13 @@
 
 var React = require('react');
 var ReactNative = require('react-native');
-var {View, ScrollView, StyleSheet, Text, TouchableOpacity, FlatList, Alert} = ReactNative;
+var {View, ScrollView, StyleSheet, Text, TouchableOpacity, FlatList} = ReactNative;
 import { Card, Appbar, Button } from 'react-native-paper';
 import { Image, Overlay, ListItem } from 'react-native-elements';
 import {withNavigation} from 'react-navigation';
 import ajax from '../service/fetchGETRestData';
 
-class ModifyTask extends React.Component{
+class ViewTask extends React.Component{
 
     constructor(props){
 
@@ -89,43 +89,9 @@ class ModifyTask extends React.Component{
         }
     }
 
-    async modifyTask(){
+    async assignTaskTo(){
 
-        const forcredit = this.props.screenProps.logData[0].credit + this.state.amount;
 
-        var patchURI = "http://patatask.com:3000/api/Tasks/"+this.state.id;
-        
-        const patchResponse = await fetch(patchURI, {
-                method: 'PATCH',
-                headers: { 
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json' 
-                        },
-                body: JSON.stringify({
-                    completed: 1,
-                }),
-        })
-
-        
-        let patch = await patchResponse.json();
-
-        Alert.alert("Task Completed","You have successfully completed task. Please wait for owner approval",[
-            {text:'Ok', onPress: ()=> this.props.navigation.goBack() },
-        ])
-        
-        /*
-        var creditURI = "http://patatask.com:3000/api/accounts/"+this.state.id;
-        const creditUpdateResponse = await fetch(creditURI, {
-                method: 'PATCH',
-                headers: { 
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json' 
-                        },
-                body: JSON.stringify({
-                    credit: forcredit
-                }),
-        })
-        */
 
     }
 
@@ -198,6 +164,25 @@ class ModifyTask extends React.Component{
         
         return(
             <View style={styles.container}>
+
+                <Overlay isVisible={this.state.isVisible} height='90%'>
+                    
+                    <FlatList 
+                        style={styles.flatList}
+                        data={this.state.friends}
+                        showsVerticalScrollIndicator={true}
+                        renderItem={    ({item}) =>                                
+                            <Card style={{elevation: 2, border:2}} onPress={() => this.setState({ assignee: item.friendid, assigneeName: item.friendname, isVisible:false }) }>
+                                <Card.Content>
+                                    <Text>  { item.friendname } </Text>
+                                </Card.Content>                                
+                            </Card>
+                        }
+
+                        keyExtractor={item => item.friendid.toString()}
+                    />               
+                </Overlay>
+
                 <Appbar style={styles.bottom}>
                     <Appbar.Action icon="arrow-back" onPress={() => goBack()}/>
                     <Appbar.Content title={this.state.screenTitle} TitleStyle={{textAlign: 'center'}} />
@@ -213,10 +198,6 @@ class ModifyTask extends React.Component{
                         <Text><Text style={styles.label}>Description </Text><Text style={styles.description}> {this.state.description}</Text></Text>
                         <Text><Text style={styles.label}>Due on </Text><Text style={styles.deadline}> { this.formatDate(this.state.deadline) }</Text></Text>       
                     </Card.Content>
-                    <Card.Actions style={{justifyContent:'space-evenly'}}>
-                        <Button onPress={ () => goBack() } >Cancel</Button>
-                        <Button onPress={ this.modifyTask.bind(this) } >Complete</Button>
-                    </Card.Actions>
                 </Card>
             </View>
 
@@ -273,4 +254,4 @@ const styles = StyleSheet.create({
 
 });
 
-export default withNavigation(ModifyTask);
+export default withNavigation(ViewTask);

@@ -50,11 +50,12 @@ export default class Home extends React.Component {
 
   }
 
-  async componentWillMount() {
+  async componentDidMount() {
     
     const userData = await AsyncStorage.getItem('USERDATA', (err, result)=>{
       this.setState({logData: JSON.parse(result)})
     });
+
     const account = this.state.logData;
     const ad = account[0]; //Account Details
         
@@ -70,6 +71,17 @@ export default class Home extends React.Component {
 
     this.updateData();
 
+    this.willFocusSubscription = this.props.navigation.addListener(
+      'willFocus',
+      () => {
+        this.updateData();
+      }
+    );
+
+  }
+
+  componentWillUnmount() {
+    this.willFocusSubscription.remove();
   }
 
   updateIndex = e = (selectedIdx) => {
@@ -79,24 +91,43 @@ export default class Home extends React.Component {
   //"http://patatask.com:3000/api/Tasks?filter=%7B%22where%22%3A%7B%22assignee%22%3A%2"+ assignee + "2%22%2C%22completed%22%3A%22"+ completed +"%22%2C%22approved%22%3A%22"+ approved + "%22%7D%7D"
 
   getAssignedTasks = e = ()=> {
-    const apiuri = "http://patatask.com:3000/api/Tasks?filter=%7B%22where%22%3A%7B%22assignee%22%3A%22"+ this.state.id + "%22%2C%22completed%22%3A%22"+ 0 +"%22%7D%7D";
-    this.props.navigation.navigate('Tasks',{taskuri: apiuri, screenTitle: "Assigned Tasks", taskType:"assigned"});
+    //const apiuri = "http://patatask.com:3000/api/Tasks?filter=%7B%22where%22%3A%7B%22assignee%22%3A%22"+ this.state.id + "%22%2C%22completed%22%3A%22"+ 0 +"%22%7D%7D";
+    const apiuri = "http://patatask.com:3000/api/Tasks?filter[where][assignee]="+this.state.id+"&filter[where][completed]="+ 0;
+    this.props.navigation.navigate('Tasks',{taskuri: apiuri, screenTitle: "Select Assigned Tasks", taskType:"assigned"});
   }
 
   getPendingTasks = e = ()=> {
-    const apiuri = "http://patatask.com:3000/api/Tasks?filter=%7B%22where%22%3A%7B%22assignee%22%3A%2"+ this.state.id + "2%22%2C%22completed%22%3A%22"+ 1 +"%22%2C%22approved%22%3A%22"+ 0 + "%22%7D%7D";
+    //const apiuri = "http://patatask.com:3000/api/Tasks?filter=%7B%22where%22%3A%7B%22assignee%22%3A%2"+ this.state.id + "2%22%2C%22completed%22%3A%22"+ 1 +"%22%2C%22approved%22%3A%22"+ 0 + "%22%7D%7D";
+    const apiuri = "http://patatask.com:3000/api/Tasks?filter[where][assignee]="+this.state.id+"&filter[where][completed]="+ 1 +"&filter[where][approved]="+ 0;
+    console.log("API : " + apiuri);
     this.props.navigation.navigate('Tasks',{taskuri: apiuri, screenTitle: "Tasks Pending Approval", taskType:"pending"});
   }
 
   getApprovedTasks = e = ()=> { 
-    const apiuri = "http://patatask.com:3000/api/Tasks?filter=%7B%22where%22%3A%7B%22assignee%22%3A%2"+ this.state.id + "2%22%2C%22completed%22%3A%22"+ 1 +"%22%2C%22approved%22%3A%22"+ 1 + "%22%7D%7D";
+    //const apiuri = "http://patatask.com:3000/api/Tasks?filter=%7B%22where%22%3A%7B%22assignee%22%3A%2"+ this.state.id + "2%22%2C%22completed%22%3A%22"+ 1 +"%22%2C%22approved%22%3A%22"+ 1 + "%22%7D%7D";
+    const apiuri = "http://patatask.com:3000/api/Tasks?filter[where][assignee]="+this.state.id+"&filter[where][completed]="+ 1 +"&filter[where][approved]="+ 1;
     this.props.navigation.navigate('Tasks',{taskuri: apiuri, screenTitle: "Approved Tasks", taskType:"approved"});
+  } 
+
+  getApprovalTasks = e = ()=> { 
+    //const apiuri = "http://patatask.com:3000/api/Tasks?filter=%7B%22where%22%3A%7B%22assignee%22%3A%2"+ this.state.id + "2%22%2C%22completed%22%3A%22"+ 1 +"%22%2C%22approved%22%3A%22"+ 1 + "%22%7D%7D";
+    const apiuri = "http://patatask.com:3000/api/Tasks?filter[where][owner]="+this.state.id+"&filter[where][completed]="+ 1 +"&filter[where][approved]="+ 0;
+    console.log("API : " + apiuri);
+    this.props.navigation.navigate('Tasks',{taskuri: apiuri, screenTitle: "List of Tasks For Approval ", taskType:"approval"});
   }
 
   getYourTasks = e = ()=> { 
     //const apiuri = "http://patatask.com:3000/api/Tasks?filter=%7B%22where%22%3A%7B%22assignee%22%3A%220%22%2C%20%22owner%22%3A%222%22%7D%7D"
-    const apiuri = "http://patatask.com:3000/api/Tasks?filter[where][assignee]="+ 0 + "&filter=[owner]="+ this.state.id;
+    const apiuri = "http://patatask.com:3000/api/Tasks?filter[where][assignee]="+ 0 + "&filter[where][owner]="+ this.state.id;
+    console.log("API : " + apiuri);
     this.props.navigation.navigate('Tasks',{taskuri: apiuri, screenTitle: "Assign Your Tasks", taskType:"own"});
+  }
+
+  getTaskStatus = e = ()=> { 
+    //const apiuri = "http://patatask.com:3000/api/Tasks?filter=%7B%22where%22%3A%7B%22assignee%22%3A%220%22%2C%20%22owner%22%3A%222%22%7D%7D"
+    const apiuri = "http://patatask.com:3000/api/Tasks?filter[where][owner]="+ this.state.id +"&filter[where][completed]="+ 0 + "";
+    console.log("API : " + apiuri);
+    this.props.navigation.navigate('Tasks',{taskuri: apiuri, screenTitle: "Check Task Status", taskType:"status"});
   }
 
   createTask = e = ()=> {
@@ -132,7 +163,7 @@ export default class Home extends React.Component {
           <Card style={styles.cardStyleTasksBtn}>
             <Card.Content style={styles.cardContentBox}>
                 <List.Section>
-                  <List.Subheader>YOUR ASSIGNMENTS</List.Subheader>
+                  <List.Subheader>TASKS ASSIGNED TO YOU</List.Subheader>
                   <List.Item
                       title="Assigned"
                       description = "Tasks assigned to you"
@@ -153,7 +184,7 @@ export default class Home extends React.Component {
                   />
                 </List.Section>
                 <List.Section>
-                  <List.Subheader>OTHER TASKS</List.Subheader>
+                  <List.Subheader>MANAGE YOUR OWN TASKS</List.Subheader>
                   <List.Item
                       title="Assign Tasks"
                       description = "Assign your tasks"
@@ -164,7 +195,13 @@ export default class Home extends React.Component {
                     title="Task Approval"
                     description ="Assignments you marked as done and pending approval"
                     left={() => <List.Icon color="#000" icon="check-circle" />}
-                    onPress={() => console.log('Pressed Pending')}
+                    onPress={ this.getApprovalTasks }
+                  />
+                  <List.Item
+                    title="Task Status"
+                    description ="Assignments you marked as done and pending approval"
+                    left={() => <List.Icon color="#000" icon="check-circle" />}
+                    onPress={ this.getTaskStatus }
                   />
                   <List.Item
                     title="Public Tasks"

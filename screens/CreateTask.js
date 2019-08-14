@@ -151,8 +151,6 @@ export default class CreateTask extends React.Component{
                         }),
                 })
                 
-
-                
                 this.props.navigation.goBack();
             }
 

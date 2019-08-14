@@ -21,8 +21,23 @@ class TaskList extends React.PureComponent {
     taskType:""
   }
 
-  async componentWillMount() {
+  componentWillMount() {
+    this.prepareData();
 
+    this.willFocusSubscription = this.props.navigation.addListener(
+      'willFocus',
+      () => {
+        this.prepareData();
+      }
+    );
+    
+  }
+
+  componentWillUnmount() {
+    this.willFocusSubscription.remove();
+  }
+
+  async prepareData(){
     const { navigation } = this.props;
 
     //UNCOMMENT BELOW FOR TESTING
@@ -34,7 +49,6 @@ class TaskList extends React.PureComponent {
     
     const tasks = await ajax.fetchData(taskTypeURL);    
     this.setState({tasks, screenTitle: scrTitle, taskType});
-
   }
 
 
@@ -54,28 +68,42 @@ class TaskList extends React.PureComponent {
     
     let scrTitle = "";
     
+    const apiuri = "http://patatask.com:3000/api/Tasks?filter[where][id]="+ itemid;
+
     switch(this.state.taskType){
       case "assigned":
         scrTitle = "Complete Task";
+        this.props.navigation.navigate('Modify',{taskuri: apiuri, screenTitle: scrTitle, taskType:"assigned"});
         break;
       case "pending": {
         scrTitle = "View Pending Task";
+        this.props.navigation.navigate('View',{taskuri: apiuri, screenTitle: scrTitle, taskType:"pending"});
         break;
       }
       case "approved": {
         scrTitle = "View Approved Task";
+        this.props.navigation.navigate('View',{taskuri: apiuri, screenTitle: scrTitle, taskType:"approved"});
         break;
       } 
       case "own": {
         scrTitle = "Assign Your Task";
+        this.props.navigation.navigate('Assign',{taskuri: apiuri, screenTitle: scrTitle, taskType:"own"});
+        break;
+      }
+      case "approval": {
+        scrTitle = "Approve Task";
+        this.props.navigation.navigate('Approve',{taskuri: apiuri, screenTitle: scrTitle, taskType:"approval"});
+        break;
+      }
+      case "status": {
+        scrTitle = "Task Status";
+        this.props.navigation.navigate('Status',{taskuri: apiuri, screenTitle: scrTitle, taskType:"approval"});
         break;
       }
       
 
     }
-
-    const apiuri = "http://patatask.com:3000/api/Tasks?filter[where][id]="+ itemid;
-    this.props.navigation.navigate('Assign',{taskuri: apiuri, screenTitle: scrTitle, taskType:"own"});
+    
   }
 
   formatDate(d) {

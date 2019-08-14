@@ -5,6 +5,10 @@ import Home from './Home';
 
 import TaskList from '../components/TaskList';
 import ModifyTask from '../components/ModifyTask';
+import AssignTask from '../components/AssignTask';
+import ApproveTask from '../components/ApproveTask';
+import StatusTask from '../components/StatusTask';
+import ViewTask from '../components/ViewTask';
 import CreateTask from './CreateTask';
 
 
@@ -24,7 +28,7 @@ class Dashboard extends React.Component {
 
     componentWillMount(){
       this.setState( {logMyData: this.props.screenProps.logData});
-      console.log("Props data: " + this.props.screenProps.logData); 
+      console.log("Props data: " + this.props.screenProps.logData);
     }
 
     logOut(){
@@ -42,10 +46,14 @@ class Dashboard extends React.Component {
   
   const AppNavigator = createStackNavigator(
     {
-      Home:  {screen: Dashboard},
-      Tasks: {screen: TaskList},
+      Home:   {screen: Dashboard},
+      Tasks:  {screen: TaskList},
       Create: {screen: CreateTask},
-      Assign: {screen: ModifyTask}
+      Assign: {screen: AssignTask},
+      Modify: {screen: ModifyTask},
+      Approve:{screen: ApproveTask},
+      Status: {screen: StatusTask},
+      View:   {screen: ViewTask},
     },
     {
       defaultNavigationOptions:{ header:null },
