@@ -50,13 +50,13 @@ class TaskList extends React.PureComponent {
       taskid: itemid
     });
 
-    console.log(this.state.taskid);
+    console.log("ITEM ID: " + this.state.taskid);
     
     let scrTitle = "";
     
     switch(this.state.taskType){
       case "assigned":
-        scrTitle = "Edit Your Assigned Task";
+        scrTitle = "Complete Task";
         break;
       case "pending": {
         scrTitle = "View Pending Task";
@@ -78,6 +78,29 @@ class TaskList extends React.PureComponent {
     this.props.navigation.navigate('Assign',{taskuri: apiuri, screenTitle: scrTitle, taskType:"own"});
   }
 
+  formatDate(d) {
+    let date = new Date(d);
+    var monthNames = [
+      "January", "February", "March",
+      "April", "May", "June", "July",
+      "August", "September", "October",
+      "November", "December"
+    ];
+  
+    var day = date.getDate();
+    var monthIndex = date.getMonth();
+    var year = date.getFullYear();
+    var hour = date.getHours();    
+    var min = date.getMinutes();
+
+    var ampm = hour >= 12 ? 'PM' : 'AM';
+    hour = hour % 12;
+    hour = hour ? hour : 12; // the hour '0' should be '12'
+    min = min < 10 ? '0'+min : min;
+  
+    return day + ' ' + monthNames[monthIndex] + ' ' + year + " - " + hour +":"+min + " " + ampm;
+  }
+
   render() {
 
     const { goBack } = this.props.navigation;
@@ -96,13 +119,17 @@ class TaskList extends React.PureComponent {
             data={this.state.tasks}
             showsVerticalScrollIndicator={true}
             renderItem={({item}) =>
+            
             <View style={styles.view}>
               <Card style={styles.card} onPress={() => this.getItemId(item.id) }>
                 <Card.Title title={item.taskname} titleStyle={styles.taskname} />                
-                <Card.Content>
-                  <Image source={{uri: item.file}} style={{ width: 50, height: 50 }} />
-                  <Text><Text style={styles.label}>Description </Text><Text style={styles.description}>{item.description}</Text></Text>
-                  <Text><Text style={styles.label}>Reward Amount </Text><Text style={styles.amount}>{item.amount}</Text></Text>
+                <Card.Content style={{alignSelf:'flex-start'}}>
+                  <Image source={{uri: item.file}} style={{ width: 50, height: 50, position:'absolute' }} />                  
+                </Card.Content>
+                <Card.Content style={{marginLeft:80}}>                                    
+                  <Text><Text style={styles.label}>Reward Amount </Text><Text style={styles.amount}>  {item.amount}</Text></Text>
+                  <Text><Text style={styles.label}>Description </Text><Text style={styles.description}> {item.description}</Text></Text>
+                  <Text><Text style={styles.label}>Due on </Text><Text style={styles.deadline}> { this.formatDate(item.deadline) }</Text></Text>
                 </Card.Content>
               </Card>
             </View>
@@ -149,6 +176,9 @@ const styles = StyleSheet.create({
     fontSize: 18
   },
   description: {
+    fontSize: 10
+  },
+  deadline: {
     fontSize: 10
   },
   amount: {

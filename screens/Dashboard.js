@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, Text } from "react-native";
-import { createStackNavigator, createAppContainer } from "react-navigation";
+import { View, Text, Easing, Animated } from "react-native";
+import { createStackNavigator, createAppContainer, CardStackStyleInterpolator } from "react-navigation";
 import Home from './Home';
 
 import TaskList from '../components/TaskList';
@@ -48,8 +48,33 @@ class Dashboard extends React.Component {
       Assign: {screen: ModifyTask}
     },
     {
-      defaultNavigationOptions:{ header:null }
+      defaultNavigationOptions:{ header:null },
+      transitionConfig: () => ({
+        transitionSpec: {
+          duration: 550,
+          easing: Easing.inOut(Easing.poly(3)),
+          timing: Animated.timing,
+        },
+        screenInterpolator: sceneProps => {
+          const { layout, position, scene } = sceneProps;
+          const { index } = scene;
+  
+          const width = layout.initWidth;
+          const translateX = position.interpolate({
+            inputRange: [index - 1, index, index + 1],
+            outputRange: [width, 0, 0],
+          });
+  
+          const opacity = position.interpolate({
+            inputRange: [index - 1, index - 0.99, index],
+            outputRange: [0, 1, 1],
+          });
+  
+          return { opacity, transform: [{ translateX }] };
+        },
+      }),
     }
+    
   );
   
   export default createAppContainer(AppNavigator);

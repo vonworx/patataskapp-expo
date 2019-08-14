@@ -135,7 +135,24 @@ export default class CreateTask extends React.Component{
                         }),
                     })//.then((response) => response.json()).then((responseJson) => {console.log("JSON RESPONSE: ======================> " + JSON.parse(responseJson)); return responseJson;}).catch((error) => {console.error(error);});
 
-                let response = await fetchresponse.json();                    
+                let response = await fetchresponse.json();
+                
+                //Deduct task rewards from user credits
+                var usercredit = ad.credit - this.state.amount;
+                var patchURI = "http://patatask.com:3000/api/accounts/"+this.state.userid;
+                let patchResponse = await fetch(patchURI, {
+                        method: 'PATCH',
+                        headers: { 
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json' 
+                                },
+                        body: JSON.stringify({
+                            credit: usercredit,
+                        }),
+                })
+                
+
+                
                 this.props.navigation.goBack();
             }
 

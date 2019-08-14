@@ -20,23 +20,44 @@ export default class Home extends React.Component {
     credit: '',
     id: '',
     avatar: 'https://patatask.com/avatar/default.png',
-    id: '',
     selectedIndex: 0
   }
 
 
-  async componentDidMount() {
+  async updateData (){
+
+    //Update Account Details
+    var url = "http://13.228.19.190:3000/api/accounts?filter[where][id]="+ this.state.id;
+    try {
+      const response = await fetch(url);
+      const userInfo = await response.json();
+      const ad = userInfo[0];
+
+      console.log("updateData : " + ad.credit);
+
+      this.setState({
+        firstname: ad.firstname,
+        middlename: ad.middlename,
+        lastname: ad.lastname,
+        credit: ad.credit,
+        avatar: ad.picture,
+      });
+
+    }
+    catch(e) {
+        console.log(e)
+    }
+
+  }
+
+  async componentWillMount() {
     
     const userData = await AsyncStorage.getItem('USERDATA', (err, result)=>{
       this.setState({logData: JSON.parse(result)})
     });
     const account = this.state.logData;
     const ad = account[0]; //Account Details
-    this.setState({
-      username: ad.username,
-      id: ad.id
-    });
-
+        
     this.setState({
       username: ad.username,
       firstname: ad.firstname,
@@ -46,6 +67,8 @@ export default class Home extends React.Component {
       id: ad.id,
       avatar: ad.picture,
     });
+
+    this.updateData();
 
   }
 
@@ -85,7 +108,9 @@ export default class Home extends React.Component {
   }
 
   render() {
-    const {navigate} = this.props.navigation;
+
+    const {navigate} = this.props.navigation;    
+
     return(
         <View style={styles.container}> 
           <StatusBar hidden={true} />

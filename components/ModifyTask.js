@@ -3,29 +3,132 @@
 var React = require('react');
 var ReactNative = require('react-native');
 var {View, ScrollView, StyleSheet, Text, TouchableOpacity, FlatList} = ReactNative;
-import { Card, Appbar } from 'react-native-paper';
-import { Image } from 'react-native-elements';
+import { Card, Appbar, Button } from 'react-native-paper';
+import { Image, Overlay, ListItem } from 'react-native-elements';
 import {withNavigation} from 'react-navigation';
 import ajax from '../service/fetchGETRestData';
 
 class ModifyTask extends React.Component{
 
     constructor(props){
+
         super(props);
-        
+
+        this.state ={
+            taskname: "",
+            tasks: [],
+            friends: [],
+            screenTitle: "",
+            taskname:"",
+            description:"",
+            deadline:"",
+            amount:"",
+            owner:"",
+            public:"",
+            assignee:"",
+            assigneeName:" Not assigned to anyone yet. Tap to assign ",
+            completed:"",
+            file:"https://img.patatask.com/assets/checklist-default.png",
+            created:"",
+            modified: null,
+            approved:"",
+            id:"",
+            isVisible: false           
+        }
     }
+    
+    
+    
+
+    async selecAllFriends(id){
+
+        try{
+            //http://patatask.com:3000/api/UserFriends?filter=%7B%22where%22%3A%7B%22userid%22%3A%222%22%7D%7D
+            const friendURI = 'http://patatask.com:3000/api/UserFriends?filter=%7B%22where%22%3A%7B%22userid%22%3A%22'+ id +'%22%7D%7D';
+            //const friends = await ajax.fetchData(friendURI);            
+
+            let friendids = await ajax.fetchData(friendURI);
+
+           await Promise.all(
+                friendids.map( 
+                    async (item) => { 
+                        const myname = await this.getName( item.friendid );
+                        item["friendname"] =  await myname;
+                    }
+                )
+           )
+
+            const friends = await friendids;
+
+            this.setState({ friends });
+            
+            console.log("selectAllFriends : " + JSON.stringify(this.state.friends) );
+
+
+        }
+        catch(e){
+            console.log(e);
+        }
+    }
+
+    async getName(id){
+        try {
+            const friendURI = 'http://patatask.com:3000/api/accounts?filter[where][id]='+ id;
+            const myFriend = await ajax.fetchData(friendURI);
+            const fData = myFriend[0];
+            console.log("myfriend " + fData.firstname + " " + fData.lastname);
+            const fullname = fData.firstname + " " + fData.lastname;
+            return fullname.toString() ;
+        }
+        catch(e){
+            console.log(e);
+        }
+    }
+
+    async assignTaskTo(){
+
+
+
+    }
+
+    //this needs to be in its own JS file for import
+    formatDate(d) {
+        let date = new Date(d);
+        var monthNames = [
+          "January", "February", "March",
+          "April", "May", "June", "July",
+          "August", "September", "October",
+          "November", "December"
+        ];
+      
+        var day = date.getDate();
+        var monthIndex = date.getMonth();
+        var year = date.getFullYear();
+        var hour = date.getHours();    
+        var min = date.getMinutes();
+    
+        var ampm = hour >= 12 ? 'PM' : 'AM';
+        hour = hour % 12;
+        hour = hour ? hour : 12; // the hour '0' should be '12'
+        min = min < 10 ? '0'+min : min;
+      
+        return day + ' ' + monthNames[monthIndex] + ' ' + year + " - " + hour +":"+min + " " + ampm;
+      }
 
     async componentWillMount(){
 
         const { navigation } = this.props;
         const taskTypeURL = this.props.navigation.getParam('taskuri', '');        
         const scrTitle = this.props.navigation.getParam('screenTitle','Patatask Task List');
+        //const taskType = this.props.navigation.getParam('taskType','');
 
         const tasks = await ajax.fetchData(taskTypeURL);    
-        this.setState({tasks, screenTitle: scrTitle});
+        this.setState({tasks, screenTitle: scrTitle });
         
-        console.log("tasks : " + JSON.stringify(tasks));
-        let stateVars = tasks[0];
+        const stateVars = tasks[0];
+
+        console.log("tasks : " + stateVars.id);
+
 
         this.setState({
             taskname: stateVars.taskname,
@@ -42,26 +145,13 @@ class ModifyTask extends React.Component{
             id: stateVars.id
         })
 
+        this.selecAllFriends(stateVars.owner);
+
 
     }
-    
-    state = {
-        tasks: [],
-        screenTitle: "",
-        taskname:"",
-        description:"",
-        deadline:"",
-        amount:"",
-        owner:"",
-        public:"",
-        assignee:"",
-        completed:"",
-        file:"https://img.patatask.com/assets/checklist-default.png",
-        created:"",
-        modified: null,
-        approved:"",
-        id:""
-    }
+        
+
+
 
     render(){
 
@@ -70,6 +160,25 @@ class ModifyTask extends React.Component{
 
         return(
             <View style={styles.container}>
+
+                <Overlay isVisible={this.state.isVisible} height='90%'>
+                    
+                    <FlatList 
+                        style={styles.flatList}
+                        data={this.state.friends}
+                        showsVerticalScrollIndicator={true}
+                        renderItem={    ({item}) =>                                
+                            <Card style={{elevation: 2, border:2}} onPress={() => this.setState({ assignee: item.friendid, assigneeName: item.friendname, isVisible:false }) }>
+                                <Card.Content>
+                                    <Text>  { item.friendname } </Text>
+                                </Card.Content>                                
+                            </Card>
+                        }
+
+                        keyExtractor={item => item.friendid.toString()}
+                    />               
+                </Overlay>
+
                 <Appbar style={styles.bottom}>
                     <Appbar.Action icon="arrow-back" onPress={() => goBack()}/>
                     <Appbar.Content title={this.state.screenTitle} TitleStyle={{textAlign: 'center'}} />
@@ -79,12 +188,23 @@ class ModifyTask extends React.Component{
                 <Card style={styles.card}>
                     <Card.Cover source={{uri: this.state.file }} />
                     <Card.Title title={this.state.taskname} titleStyle={styles.taskname} />
-                    <Card.Content>
-                        <Text>{this.state.description}</Text>            
-                    </Card.Content>  
+                    <Card.Content style={{marginBottom: 10}}>
+                        <Text><Text style={styles.label}>Reward Amount </Text><Text style={styles.amount}>  {this.state.amount}</Text></Text>
+                        <Text><Text style={styles.label}>Description </Text><Text style={styles.description}> {this.state.description}</Text></Text>
+                        <Text><Text style={styles.label}>Due on </Text><Text style={styles.deadline}> { this.formatDate(this.state.deadline) }</Text></Text>       
+                    </Card.Content>
+                    <Card.Title title="Assign task " titleStyle={styles.taskname} />
+                    <Card.Content style={{flexDirection:"row", border:2, elevation:2, borderColor:'#222', height:50, alignItems:'center'}}>
+                        <Text onPress={() => this.setState({ isVisible: true }) } > <Text style={styles.taskname}>To </Text> <Text style={styles.taskname}>{this.state.assigneeName}</Text> </Text>
+                    </Card.Content>
+                    <Card.Actions style={{justifyContent:'space-evenly'}}>
+                        <Button onPress={ () => goBack() } >Cancel</Button>
+                        <Button onPress={ this.assignTaskTo } >Assign</Button>
+                    </Card.Actions>
                 </Card>
-
             </View>
+
+            
         )
     }
 }
@@ -105,23 +225,33 @@ const styles = StyleSheet.create({
     exitBtn: {
         alignSelf: 'flex-end'
     },
-    taskname: {
-        fontSize: 18
+    flatList:{
+        //
     },
     card: {
-        marginTop: 75,
+        marginTop: 175,
         justifyContent: 'center',        
         borderRadius: 2,
         maxWidth: '90%',
         width: '90%',
         backgroundColor:'#fff',
         alignSelf:'center',
-        elevation: 2
+        
+    },
+    label:{
+        fontSize: 12,
+        fontWeight:"bold"
+    },
+    taskname: {
+        fontSize: 18
     },
     description: {
         fontSize: 10
     },
-        amount: {
+    deadline: {
+        fontSize: 10
+    },
+    amount: {
         color: 'red'
     },
 

@@ -25,8 +25,6 @@ export default class App extends React.Component {
 
     }
 
-    
-
     logOut(){
       
       this.setState({
@@ -91,7 +89,7 @@ export default class App extends React.Component {
       return (
         <View style={styles.container}>
         <StatusBar hidden={true} />
-            <Image source={ require('./assets/logo-trans.png')}  />
+            <Image source={ require('./assets/logo-trans.png')} width="95%" height="95%"  />
             <TextInput label="Enter Username" style={styles.textInputStyle} onChangeText={(username) => this.setState({username})} placeholder="Username" value={this.state.username} />
             <TextInput label="Enter Password" style={styles.textInputStyle} onChangeText={(password) => this.setState({password})} placeholder ="Password" value={this.state.password} secureTextEntry={ true }/>
             <Button contentStyle={{fontSize: 28}} mode="contained" dark={true} style = {styles.logButtonStyle} onPress = { this._userLogin } uppercase={false} >LOGIN</Button>
