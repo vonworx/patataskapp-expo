@@ -236,9 +236,9 @@ class StatusTask extends React.Component{
                 </Overlay>
 
                 <Appbar style={styles.bottom}>
-                    <Appbar.Action icon="arrow-back" onPress={() => goBack()}/>
+                    <Appbar.Action icon="arrow-back" size={40} onPress={() => goBack()}/>
                     <Appbar.Content title={this.state.screenTitle} TitleStyle={{textAlign: 'center'}} />
-                    <Appbar.Action style={styles.exitBtn} icon="exit-to-app" onPress={ ()=> this.props.screenProps.onLogout() } />
+                    <Appbar.Action style={styles.exitBtn} icon="exit-to-app" size={40} onPress={ ()=> this.props.screenProps.onLogout() } />
                 </Appbar>
 
                 <Card style={styles.card}>
@@ -268,6 +268,8 @@ const styles = StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: '#f7f7cf',
+      alignContent: 'center',
+     justifyContent: 'center',
     },
     bottom: {
         position: 'absolute',
@@ -284,7 +286,6 @@ const styles = StyleSheet.create({
         //
     },
     card: {
-        marginTop: 175,
         justifyContent: 'center',        
         borderRadius: 2,
         maxWidth: '90%',

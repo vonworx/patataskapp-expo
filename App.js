@@ -7,18 +7,17 @@ import Login from './screens/Login';
 import Home from './screens/Home';
 import Dashboard from './screens/Dashboard'
 
-////<Text>Choi open up App.js to start working on your app!</Text>
+
 export default class App extends React.Component {
 
     constructor(props)
     {
       super(props);
-
       this.logOut = this.logOut.bind(this);
 
       this.state = {
-        username: 'lancejrts',
-        password: '2',
+        username: '',
+        password: '',
         isLoggedIn: false,
         message: '',
         logData: [],
@@ -28,18 +27,50 @@ export default class App extends React.Component {
     }
 
     async componentDidMount(){
-      const logStatus = await this.getData();
-      console.log(JSON.stringify(logStatus));
+      
+      /* Check if user is already logged in previously */
+
+      let isLogged = false; // initialized boolean
+      
+      try {
+
+        //Get from phone storage "isLoggedin"
+        isLogged = await AsyncStorage.getItem('isLoggedin').then(
+
+          isLoggedIn =>
+          {
+            if (isLoggedIn == "true"){
+              //console.log("LOGSTATUS :" + JSON.stringify(isLoggedIn));
+              return true;
+            }
+          }
+
+        )
+
+        if (isLogged){
+            logStatus = await AsyncStorage.getItem('USERDATA')
+            
+            let userInfo = await logStatus;
+            //console.log("LOGSTATUS :" + JSON.stringify(userInfo))
+            
+            this.setState({
+              isLoggedIn: true,
+              logData: userInfo,
+              password: userInfo[0].password,
+              message: ''
+            });
+        }
+
+
+      } catch(e){
+        console.log(e.message)
+      }
+      
     }
 
-    async getData(){
-        
-      return await AsyncStorage.getItem('isLoggedIn');
-        
-    }
+    async logOut(){
 
-    logOut(){
-      AsyncStorage.setItem('isLoggedin', JSON.stringify({isLoggedIn : false}));
+      await AsyncStorage.setItem('isLoggedin', "false");
       
       this.setState({
         logData:[],
@@ -47,6 +78,7 @@ export default class App extends React.Component {
         username: '',
         password: '',
       });
+      
     }
 
     _userLogin = async () => {
@@ -59,25 +91,15 @@ export default class App extends React.Component {
         
         if (response.status == 200){
             
-            this.setState({ message: "Account not found" });
-            proceed = true;
-            const userInfo = await response.json();
-            const details = await userInfo[0];
+            this.setState({ message: "Logging In" });
 
-            //console.log(details);
+            const userInfo = await response.json();
+            let details = await userInfo[0];
 
             if ( (JSON.stringify(userInfo)).length > 2){
               if ( (this.state.username == details.username) && (this.state.password == details.password) ){
 
-                this.setState({
-                  isLoggedIn: true,
-                  logData: userInfo,
-                  password: details.password,
-                  message: ''
-                 });
-
-                  AsyncStorage.setItem('USERDATA', JSON.stringify(userInfo));
-                  AsyncStorage.setItem('isLoggedin', JSON.stringify({isLoggedIn : false}));           
+                this.loggingProcess(userInfo, details);
 
               } else {
                 this.setState({message: "Invalid password"});
@@ -90,6 +112,22 @@ export default class App extends React.Component {
       catch(e) {
           console.log(e)
       }
+
+    }
+
+    async loggingProcess(userInfo,details){
+
+      await AsyncStorage.setItem('USERDATA', JSON.stringify(userInfo));
+      await AsyncStorage.setItem('isLoggedin', "true");       
+        
+      console.log(JSON.stringify("ADDING USERDATA : " + userInfo[0].password));
+
+      this.setState({
+        isLoggedIn: true,
+        logData: userInfo,
+        password: details.password,
+        message: ''
+      });
 
     }
 

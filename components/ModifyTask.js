@@ -199,11 +199,11 @@ class ModifyTask extends React.Component{
         return(
             <View style={styles.container}>
                 <Appbar style={styles.bottom}>
-                    <Appbar.Action icon="arrow-back" onPress={() => goBack()}/>
+                    <Appbar.Action icon="arrow-back" size={40} onPress={() => goBack()}/>
                     <Appbar.Content title={this.state.screenTitle} TitleStyle={{textAlign: 'center'}} />
-                    <Appbar.Action style={styles.exitBtn} icon="exit-to-app" onPress={ ()=> this.props.screenProps.onLogout() } />
+                    <Appbar.Action style={styles.exitBtn} icon="exit-to-app" size={40} onPress={ ()=> this.props.screenProps.onLogout() } />
                 </Appbar>
-
+                
                 <Card style={styles.card}>
                     <Card.Cover source={{uri: this.state.file }} />
                     <Card.Title title={this.state.taskname} titleStyle={styles.taskname} />
@@ -229,6 +229,8 @@ const styles = StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: '#f7f7cf',
+      alignContent: 'center',
+      justifyContent: 'center'
     },
     bottom: {
         position: 'absolute',
@@ -245,14 +247,12 @@ const styles = StyleSheet.create({
         //
     },
     card: {
-        marginTop: 175,
         justifyContent: 'center',        
         borderRadius: 2,
         maxWidth: '90%',
         width: '90%',
         backgroundColor:'#fff',
         alignSelf:'center',
-        
     },
     label:{
         fontSize: 12,

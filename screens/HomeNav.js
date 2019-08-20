@@ -1,10 +1,12 @@
 import React from 'react';
 import { StyleSheet, Text, View, StatusBar, Image, AsyncStorage, ScrollView } from 'react-native';
-import { Avatar, Appbar, Card, List, Title, Paragraph, Divider, Button, Badge, FAB } from 'react-native-paper';
+import { ButtonGroup } from 'react-native-elements';
+import { Avatar, Appbar, Card, List, Title, Paragraph, Divider, Chip, DataTable, Button, Badge, FAB, Menu } from 'react-native-paper';
 import TaskFlatList from '../components/TaskFlatList';
-import { StackNavigator } from 'react-navigation';
+import { StackNavigator, DrawerNavigator, createDrawerNavigator } from 'react-navigation';
+import Settings from './Settings';
 
-export default class Home extends React.Component {
+class HomeNav extends React.Component {
 
   constructor(props){
     super(props);
@@ -33,7 +35,7 @@ export default class Home extends React.Component {
       const userInfo = await response.json();
       const ad = userInfo[0];
 
-     // console.log("updateData : " + ad.credit);
+      console.log("updateData : " + ad.credit);
 
       this.setState({
         firstname: ad.firstname,
@@ -70,7 +72,7 @@ export default class Home extends React.Component {
     });
 
     this.updateData();
-    
+
     this.willFocusSubscription = this.props.navigation.addListener(
       'willFocus',
       () => {
@@ -91,44 +93,43 @@ export default class Home extends React.Component {
   //"http://patatask.com:3000/api/Tasks?filter=%7B%22where%22%3A%7B%22assignee%22%3A%2"+ assignee + "2%22%2C%22completed%22%3A%22"+ completed +"%22%2C%22approved%22%3A%22"+ approved + "%22%7D%7D"
 
   getAssignedTasks = e = ()=> {
+    //const apiuri = "http://patatask.com:3000/api/Tasks?filter=%7B%22where%22%3A%7B%22assignee%22%3A%22"+ this.state.id + "%22%2C%22completed%22%3A%22"+ 0 +"%22%7D%7D";
     const apiuri = "http://patatask.com:3000/api/Tasks?filter[where][assignee]="+this.state.id+"&filter[where][completed]="+ 0;
     this.props.navigation.navigate('Tasks',{taskuri: apiuri, screenTitle: "Select Assigned Tasks", taskType:"assigned"});
   }
 
   getPendingTasks = e = ()=> {
+    //const apiuri = "http://patatask.com:3000/api/Tasks?filter=%7B%22where%22%3A%7B%22assignee%22%3A%2"+ this.state.id + "2%22%2C%22completed%22%3A%22"+ 1 +"%22%2C%22approved%22%3A%22"+ 0 + "%22%7D%7D";
     const apiuri = "http://patatask.com:3000/api/Tasks?filter[where][assignee]="+this.state.id+"&filter[where][completed]="+ 1 +"&filter[where][approved]="+ 0;
     console.log("API : " + apiuri);
     this.props.navigation.navigate('Tasks',{taskuri: apiuri, screenTitle: "Tasks Pending Approval", taskType:"pending"});
   }
 
   getApprovedTasks = e = ()=> { 
+    //const apiuri = "http://patatask.com:3000/api/Tasks?filter=%7B%22where%22%3A%7B%22assignee%22%3A%2"+ this.state.id + "2%22%2C%22completed%22%3A%22"+ 1 +"%22%2C%22approved%22%3A%22"+ 1 + "%22%7D%7D";
     const apiuri = "http://patatask.com:3000/api/Tasks?filter[where][assignee]="+this.state.id+"&filter[where][completed]="+ 1 +"&filter[where][approved]="+ 1;
     this.props.navigation.navigate('Tasks',{taskuri: apiuri, screenTitle: "Approved Tasks", taskType:"approved"});
   } 
 
   getApprovalTasks = e = ()=> { 
-
+    //const apiuri = "http://patatask.com:3000/api/Tasks?filter=%7B%22where%22%3A%7B%22assignee%22%3A%2"+ this.state.id + "2%22%2C%22completed%22%3A%22"+ 1 +"%22%2C%22approved%22%3A%22"+ 1 + "%22%7D%7D";
     const apiuri = "http://patatask.com:3000/api/Tasks?filter[where][owner]="+this.state.id+"&filter[where][completed]="+ 1 +"&filter[where][approved]="+ 0;
     console.log("API : " + apiuri);
     this.props.navigation.navigate('Tasks',{taskuri: apiuri, screenTitle: "List of Tasks For Approval ", taskType:"approval"});
   }
 
   getYourTasks = e = ()=> { 
+    //const apiuri = "http://patatask.com:3000/api/Tasks?filter=%7B%22where%22%3A%7B%22assignee%22%3A%220%22%2C%20%22owner%22%3A%222%22%7D%7D"
     const apiuri = "http://patatask.com:3000/api/Tasks?filter[where][assignee]="+ 0 + "&filter[where][owner]="+ this.state.id;
     console.log("API : " + apiuri);
     this.props.navigation.navigate('Tasks',{taskuri: apiuri, screenTitle: "Assign Your Tasks", taskType:"own"});
   }
 
   getTaskStatus = e = ()=> { 
+    //const apiuri = "http://patatask.com:3000/api/Tasks?filter=%7B%22where%22%3A%7B%22assignee%22%3A%220%22%2C%20%22owner%22%3A%222%22%7D%7D"
     const apiuri = "http://patatask.com:3000/api/Tasks?filter[where][owner]="+ this.state.id +"&filter[where][completed]="+ 0 + "";
     console.log("API : " + apiuri);
     this.props.navigation.navigate('Tasks',{taskuri: apiuri, screenTitle: "Check Task Status", taskType:"status"});
-  }
-
-  getProfile = e = ()=> { 
-    const apiuri = "http://patatask.com:3000/api/Tasks?filter[where][owner]="+ this.state.id +"&filter[where][completed]="+ 0 + "";
-    //console.log("API : " + apiuri);
-    this.props.navigation.navigate('Settings',{taskuri: apiuri, screenTitle: "Manage Your Account", taskType:"profile"});
   }
 
   createTask = e = ()=> {
@@ -153,20 +154,19 @@ export default class Home extends React.Component {
           <StatusBar hidden={true} />
 
           <Appbar style={styles.bottom}>
-              <Appbar.Action icon="face" size={40} onPress={this.getProfile}/>
+              <Appbar.Action icon="menu" onPress={() => console.log('Pressed archive')}/>
               <Appbar.Content title="Dashboard" TitleStyle={{textAlign: 'center'}} />
-              <Appbar.Action style={styles.exitBtn} icon="exit-to-app" size={40} onPress={ this.props.onLogoutHandler } />
-          </Appbar>  
-
+              <Appbar.Action style={styles.exitBtn} icon="exit-to-app" onPress={ this.props.onLogoutHandler } />
+          </Appbar>   
           <Card style={styles.cardStyleHome}>
-            <Card.Title titleStyle={{ textAlign: "auto", fontSize: 16 }} title={ "Hello " + this.state.firstname } left={(props) => <Avatar.Image size={75} source={{uri: this.state.avatar}} />} leftStyle={{paddingRight:70}}/>
+            <Card.Title titleStyle={{ textAlign: "auto", fontSize: 18 }} title={ "Hello " + this.state.firstname } left={(props) => <Avatar.Image size={100} source={{uri: this.state.avatar}} />} leftStyle={{paddingRight:100}}/>
             <Card.Content style={{alignSelf:"flex-end", position:"absolute", fontSize:22,  marginRight:10}}>
               <Image style={{width:75, height:75, alignSelf:"center"}} source={require('../assets/coins-tn.jpg')} /> 
               <Text style={{alignSelf:"center", fontStyle:"italic", fontWeight:"200"}}>Cr. {this.state.credit}</Text>
             </Card.Content>
           </Card>
           
-          <ScrollView style={{paddingBottom:20}}>   
+          <ScrollView>   
           <Card style={styles.cardStyleTasksBtn}>
             <Card.Content style={styles.cardContentBox}>
                 <List.Section>
@@ -190,10 +190,6 @@ export default class Home extends React.Component {
                     onPress={this.getApprovedTasks }
                   />
                 </List.Section>
-            </Card.Content>
-            </Card>
-            <Card style={styles.cardStyleTasksBtn} >
-            <Card.Content style={styles.cardContentBox}>
                 <List.Section>
                   <List.Subheader>MANAGE YOUR OWN TASKS</List.Subheader>
                   <List.Item
@@ -218,7 +214,7 @@ export default class Home extends React.Component {
                     title="Public Tasks"
                     description="Select public tasks that you want to do"
                     left={() => <List.Icon color="#000" icon="group" />}
-                    onPress={() => console.log('Pressed Completed')}
+                    onPress={ () => this.props.navigation.openDrawer}
                   />
                 </List.Section>
 
@@ -237,6 +233,19 @@ export default class Home extends React.Component {
   }
 }
 
+export const Drawer = createDrawerNavigator({
+  HomeNav: { screen: HomeNav },
+  Settings: { screen: Settings },
+}, {
+
+  hideStatusBar: true,
+  drawerBackgroundColor: 'rgba(255,255,255,.9)',
+  overlayColor: '#6b52ae',
+  contentOptions: {
+    activeTintColor: '#fff',
+    activeBackgroundColor: '#6b52ae',
+  },
+});
 
 const styles = StyleSheet.create({
   container: {

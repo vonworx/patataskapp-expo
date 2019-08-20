@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, Easing, Animated } from "react-native";
-import { createStackNavigator, createAppContainer, CardStackStyleInterpolator } from "react-navigation";
-import Home from './Home';
+import { createStackNavigator, createAppContainer } from "react-navigation";
 
+import Home from './Home';
 import TaskList from '../components/TaskList';
 import ModifyTask from '../components/ModifyTask';
 import AssignTask from '../components/AssignTask';
@@ -11,6 +11,10 @@ import StatusTask from '../components/StatusTask';
 import ViewTask from '../components/ViewTask';
 import CreateTask from './CreateTask';
 
+import Settings from '../components/Settings';
+import FriendAdd from '../components/FriendAdd';
+import FriendRemove from '../components/FriendRemove';
+import FriendBlock from '../components/FriendBlock';
 
 
 class Dashboard extends React.Component {
@@ -19,20 +23,27 @@ class Dashboard extends React.Component {
     {
       super(props);
       this.logOut = this.logOut.bind(this);
-    }
 
-    state = {
+      this.state = {
         logMyData: null,
         onLogoutPress: true
       }
 
+    }
+
+    
+
     componentWillMount(){
+
       this.setState( {logMyData: this.props.screenProps.logData});
-      console.log("Props data: " + this.props.screenProps.logData);
+      //console.log("Props data: " + this.props.screenProps.logData);
+    
     }
 
     logOut(){
+      
       this.props.screenProps.onLogout();
+    
     }
 
     render() {
@@ -43,6 +54,8 @@ class Dashboard extends React.Component {
       );
     }
   }
+
+
   
   const AppNavigator = createStackNavigator(
     {
@@ -54,12 +67,16 @@ class Dashboard extends React.Component {
       Approve:{screen: ApproveTask},
       Status: {screen: StatusTask},
       View:   {screen: ViewTask},
+      Settings: {screen: Settings},
+      FriendAdd : {screen: FriendAdd},
+      FriendRemove : {screen: FriendRemove},
+      FriendBlock : {screen: FriendBlock},
     },
     {
       defaultNavigationOptions:{ header:null },
       transitionConfig: () => ({
         transitionSpec: {
-          duration: 550,
+          duration: 350,
           easing: Easing.inOut(Easing.poly(3)),
           timing: Animated.timing,
         },

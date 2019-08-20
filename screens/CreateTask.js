@@ -201,9 +201,9 @@ export default class CreateTask extends React.Component{
         return(
             <View style={styles.container}>
                 <Appbar style={styles.bottom}>
-                    <Appbar.Action icon="arrow-back" onPress={() => goBack() }/>
+                    <Appbar.Action icon="arrow-back" size={40} onPress={() => goBack() }/>
                     <Appbar.Content title={this.state.screenTitle} TitleStyle={{textAlign: 'center'}} />
-                    <Appbar.Action style={styles.exitBtn} icon="exit-to-app" onPress={ ()=> this.props.screenProps.onLogout() } />
+                    <Appbar.Action style={styles.exitBtn} icon="exit-to-app" size={40} onPress={ ()=> this.props.screenProps.onLogout() } />
                 </Appbar> 
 
                 <Card style={styles.cardStyle}>

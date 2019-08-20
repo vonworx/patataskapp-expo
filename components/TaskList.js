@@ -21,10 +21,9 @@ class TaskList extends React.PureComponent {
     taskType:""
   }
 
-  componentWillMount() {
-    this.prepareData();
-
-    this.willFocusSubscription = this.props.navigation.addListener(
+  async componentWillMount() {
+    await this.prepareData();
+    this.willFocusSubscription = await this.props.navigation.addListener(
       'willFocus',
       () => {
         this.prepareData();
@@ -137,9 +136,9 @@ class TaskList extends React.PureComponent {
       <View style={styles.container}>
 
         <Appbar style={styles.bottom}>
-            <Appbar.Action icon="arrow-back" onPress={() => goBack()}/>
+            <Appbar.Action icon="arrow-back" size={40} onPress={() => goBack()}/>
             <Appbar.Content title={this.state.screenTitle} TitleStyle={{textAlign: 'center'}} />
-            <Appbar.Action style={styles.exitBtn} icon="exit-to-app" onPress={ ()=> this.props.screenProps.onLogout() } />
+            <Appbar.Action style={styles.exitBtn} icon="exit-to-app" size={40} onPress={ ()=> this.props.screenProps.onLogout() } />
         </Appbar> 
 
         <FlatList 
@@ -172,7 +171,9 @@ class TaskList extends React.PureComponent {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f7f7cf',
+    backgroundColor: '#fff',
+    alignContent: 'center',
+    justifyContent: 'center',
   },
   h2text: {
     marginTop: 10,
@@ -181,20 +182,18 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   flatList:{
-    marginTop: 75,
+    marginTop: 70,
   },
   view: {
     justifyContent: 'center',
-    paddingLeft: 10,
     borderRadius: 2,
-    maxWidth: '90%',
-    width: '90%',
-    backgroundColor:'#f7f7cf',
+    width: '100%',
     alignSelf:'center'
   },
   card:{
     margin: 5,
-    elevation: 2
+    elevation: 2,
+    backgroundColor: '#f7f7cf'
   },
   label:{
     fontSize: 12,
