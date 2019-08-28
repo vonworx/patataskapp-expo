@@ -242,7 +242,7 @@ class StatusTask extends React.Component{
                 </Appbar>
 
                 <Card style={styles.card}>
-                    <Card.Cover source={{uri: this.state.file }} />
+                    <Card.Cover source={{uri: this.state.file }}  style={{ borderTopLeftRadius: 20, borderTopRightRadius: 20, }}/>
                     <Card.Title title={this.state.taskname} titleStyle={styles.taskname} />
                     <Card.Content style={{marginBottom: 10}}>
                         <Text><Text style={styles.label}>Reward Amount </Text><Text style={styles.amount}>  {this.state.amount}</Text></Text>
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
       flex: 1,
       backgroundColor: '#f7f7cf',
       alignContent: 'center',
-     justifyContent: 'center',
+      justifyContent: 'center',
     },
     bottom: {
         position: 'absolute',
@@ -292,7 +292,10 @@ const styles = StyleSheet.create({
         width: '90%',
         backgroundColor:'#fff',
         alignSelf:'center',
-        
+        borderBottomLeftRadius:20,
+        borderBottomRightRadius:20,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,         
     },
     label:{
         fontSize: 12,

@@ -226,7 +226,7 @@ class AssignTask extends React.Component{
                 </Appbar>
 
                 <Card style={styles.card}>
-                    <Card.Cover source={{uri: this.state.file }} />
+                    <Card.Cover source={{uri: this.state.file }} style={{ borderTopLeftRadius: 20, borderTopRightRadius: 20, }} />
                     <Card.Title title={this.state.taskname} titleStyle={styles.taskname} />
                     <Card.Content style={{marginBottom: 10}}>
                         <Text><Text style={styles.label}>Reward Amount </Text><Text style={styles.amount}>  {this.state.amount}</Text></Text>
@@ -273,9 +273,13 @@ const styles = StyleSheet.create({
     card: {
         justifyContent: 'center',        
         borderRadius: 2,
-        width: '100%',
         backgroundColor:'#fff',
         alignSelf:'center',
+        borderBottomLeftRadius:20,
+        borderBottomRightRadius:20,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        width:"90%"
     },
     label:{
         fontSize: 12,

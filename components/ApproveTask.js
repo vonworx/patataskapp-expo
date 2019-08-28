@@ -180,7 +180,7 @@ class ApproveTask extends React.Component{
                 </Appbar>
 
                 <Card style={styles.card}>
-                    <Card.Cover source={{uri: this.state.file }} />
+                    <Card.Cover source={{uri: this.state.file }}  style={{ borderTopLeftRadius: 20, borderTopRightRadius: 20, }}/>
                     <Card.Title title={this.state.taskname} titleStyle={styles.taskname} />
                     <Card.Content style={{marginBottom: 10}}>
                         <Text><Text style={styles.label}>Assigned to </Text><Text style={styles.amount}>  { this.state.assigneeName }</Text></Text>
@@ -227,7 +227,10 @@ const styles = StyleSheet.create({
         width: '90%',
         backgroundColor:'#fff',
         alignSelf:'center',
-        
+        borderBottomLeftRadius:20,
+        borderBottomRightRadius:20,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,       
     },
     label:{
         fontSize: 12,

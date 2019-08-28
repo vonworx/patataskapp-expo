@@ -1,6 +1,6 @@
 import React from 'react';
 import { TextInput, Button, Appbar, Card, Checkbox, DataTable } from 'react-native-paper';
-import { Text, View, StyleSheet, AsyncStorage} from 'react-native';
+import { Text, View, StyleSheet, AsyncStorage, ScrollView} from 'react-native';
 import { withNavigation } from 'react-navigation';
 import { NavigationArrowDropDownCircle } from 'material-ui/svg-icons';
 import DatePicker from 'react-native-datepicker';
@@ -205,7 +205,6 @@ export default class CreateTask extends React.Component{
                     <Appbar.Content title={this.state.screenTitle} TitleStyle={{textAlign: 'center'}} />
                     <Appbar.Action style={styles.exitBtn} icon="exit-to-app" size={40} onPress={ ()=> this.props.screenProps.onLogout() } />
                 </Appbar> 
-
                 <Card style={styles.cardStyle}>
                     <Card.Title titleStyle={{ textAlign: "auto", fontSize: 18 }} title={ "Task Deadline" }/>
                     <Card.Content style={styles.dateCard}>                        
@@ -252,7 +251,11 @@ const styles = StyleSheet.create({
         marginTop: 80,
         width: "90%",
         alignSelf: 'center',
-        justifyContent:'center'
+        justifyContent:'center',
+        borderBottomLeftRadius:20,
+        borderBottomRightRadius:20,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
     },
     bottom: {
         position: 'absolute',

@@ -172,7 +172,7 @@ class ViewTask extends React.Component{
                         data={this.state.friends}
                         showsVerticalScrollIndicator={true}
                         renderItem={    ({item}) =>                                
-                            <Card style={{elevation: 2, border:2}} onPress={() => this.setState({ assignee: item.friendid, assigneeName: item.friendname, isVisible:false }) }>
+                            <Card style={{elevation: 2, border:2, }} onPress={() => this.setState({ assignee: item.friendid, assigneeName: item.friendname, isVisible:false }) }>
                                 <Card.Content>
                                     <Text>  { item.friendname } </Text>
                                 </Card.Content>                                
@@ -230,11 +230,14 @@ const styles = StyleSheet.create({
     card: {
         justifyContent: 'center',        
         borderRadius: 2,
-        maxWidth: '90%',
-        width: '90%',
         backgroundColor:'#fff',
         alignSelf:'center',
-        
+        borderBottomLeftRadius:20,
+        borderBottomRightRadius:20,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        width: "90%",
+
     },
     label:{
         fontSize: 12,

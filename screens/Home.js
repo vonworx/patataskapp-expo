@@ -50,14 +50,16 @@ export default class Home extends React.Component {
 
   }
 
-  async componentDidMount() {
+  async componentWillMount() {
     
     const userData = await AsyncStorage.getItem('USERDATA', (err, result)=>{
       this.setState({logData: JSON.parse(result)})
     });
 
-    const account = this.state.logData;
-    const ad = account[0]; //Account Details
+    const account = await this.state.logData;
+    const ad = await account[0]; //Account Details
+
+    console.log("ad :" + ad);
         
     this.setState({
       username: ad.username,
@@ -128,7 +130,8 @@ export default class Home extends React.Component {
   getProfile = e = ()=> { 
     const apiuri = "http://patatask.com:3000/api/Tasks?filter[where][owner]="+ this.state.id +"&filter[where][completed]="+ 0 + "";
     //console.log("API : " + apiuri);
-    this.props.navigation.navigate('Settings',{taskuri: apiuri, screenTitle: "Manage Your Account", taskType:"profile"});
+    console.log(this.state.username);
+    this.props.navigation.navigate('Settings',{taskuri: apiuri, screenTitle: "Manage Your Account", taskType:"profile", uname : this.state.username, uid: this.state.id});
   }
 
   createTask = e = ()=> {

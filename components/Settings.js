@@ -15,6 +15,7 @@ class Settings extends React.Component {
 
     this.state={
       screenTitle: "",
+      username:"",
     }
 
   }
@@ -22,15 +23,17 @@ class Settings extends React.Component {
   async componentWillMount(){
     const taskTypeURL = this.props.navigation.getParam('taskuri', '');        
     const scrTitle = this.props.navigation.getParam('screenTitle','Patatask Task List');
-    this.setState({screenTitle: scrTitle });
+    const username = this.props.navigation.getParam('uname','');
+    this.setState({screenTitle: scrTitle, username });
 
-    console.log("TASK TYPE : " + taskTypeURL);
+    console.log("TASK TYPE : " + taskTypeURL + " || USERNAME: " + username);
   }
 
   goback(){
     console.log("GO BACK PRESSED");
     this.props.navigation.goBack();
   }
+
 
   render () {
 
@@ -70,7 +73,7 @@ class Settings extends React.Component {
                       description =""
                       titleStyle = {styles.listItemTitle}
                       left={() => <List.Icon color="#000" icon="person-add" />}
-                      onPress={ ()=> navigate("FriendAdd")}
+                      onPress={ ()=> navigate("FriendAdd", {uname : this.state.username})}
                     />
                     <List.Item
                       title="Remove Friend"

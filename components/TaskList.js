@@ -183,24 +183,30 @@ const styles = StyleSheet.create({
   },
   flatList:{
     marginTop: 70,
+    marginBottom: 20
   },
   view: {
     justifyContent: 'center',
-    borderRadius: 2,
     width: '100%',
-    alignSelf:'center'
+    alignSelf:'center',
+    alignItems: 'center',
   },
   card:{
     margin: 5,
     elevation: 2,
-    backgroundColor: '#f7f7cf'
+    backgroundColor: '#f7f7cf',
+    width: "90%",
+    borderBottomLeftRadius:20,
+    borderBottomRightRadius:20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
   },
   label:{
     fontSize: 12,
     fontWeight:"bold"
   },
   taskname: {
-    fontSize: 18
+    fontSize: 18,
   },
   description: {
     fontSize: 10
